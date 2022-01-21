@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.wear.widget.BoxInsetLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/box_inset_layout_padding"
+    tools:deviceIds="wear">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="@dimen/inner_frame_layout_padding"
+        app:boxedEdges="all"
+        android:minWidth="25px"
+        android:minHeight="25px">
+        <ScrollView
+            android:id="@+id/scroll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="#000000"
+            android:fillViewport="true">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:id="@+id/linearLayout1">
+                <TextView
+                    android:text="Measure not started"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:textColor="#660000"
+                    android:id="@+id/status" />
+                <TextView
+                    android:text="Measure not started"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:textColor="#000000"
+                    android:id="@+id/result" />
+                <TextView
+                    android:layout_width="182.7dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="12dp"
+                    android:text="HRV for two hearts"
+                    android:textSize="18sp"
+                    android:textColor="#006600"
+                    android:id="@+id/textView2"
+                    android:layout_marginLeft="0.0dp" />
+                <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="showNotification"
+                    android:text="Start HRV meassurement!"
+                    android:id="@+id/click_button" />
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+</androidx.wear.widget.BoxInsetLayout>
