@@ -9,9 +9,12 @@ using Android.Text;
 using static Com.Samsung.Android.Sdk.Healthdata.HealthPermissionManager;
 using System.Collections.Generic;
 using Android.Runtime;
+using TwoHearts;
+using Java.Interop;
 
 namespace TwoHearts
 {
+
     [Activity(Label = "@string/app_name", MainLauncher = true)]
     // [Activity(Label = "WearTest", MainLauncher = true, Icon = "@drawable/icon")]
     public class MainActivity : WearableActivity
@@ -19,22 +22,20 @@ namespace TwoHearts
         
         private static MainActivity Instance = null;
         private HealthDataStore Store;
-        private HealthConnectionErrorResult ConnError;
+        private readonly HealthConnectionErrorResult ConnError;
         private HashSet<PermissionKey> KeySet;
 
-        public HealthDataStore.IConnectionListener ConnectionListener { get; private set; }
+        public ConnectionListener ConnectionListener { get; private set; }
 
         protected override void OnCreate(Bundle bundle)
         {
             base.OnCreate(bundle);
             SetContentView(Resource.Layout.activity_main);
             Instance = this;
-            KeySet = new HashSet<PermissionKey>();
-            KeySet.Add(new PermissionKey(HealthConstants.Electrocardiogram.HealthDataType, PermissionType.Read));
-            // Create a HealthDataStore instance and set its listener
-            Store = new HealthDataStore(this, ConnectionListener);
-            // Request the connection to the health data store
-            Store.ConnectService();
+            KeySet = new HashSet<PermissionKey>
+            {
+                new PermissionKey(HealthConstants.Electrocardiogram.HealthDataType, PermissionType.Read)
+            };
 
             Button button = FindViewById<Button>(Resource.Id.click_button);
             button.Click += StartMeassurement;
@@ -47,7 +48,6 @@ namespace TwoHearts
             Store.DisconnectService();
         }
 
-
         private void StartMeassurement(object sender, EventArgs e)
         {
             TextView status = FindViewById<TextView>(Resource.Id.status);
@@ -57,7 +57,47 @@ namespace TwoHearts
             status.Text = string.Format("Meassurement started");
 
             var ecg = HealthConstants.Electrocardiogram.Data;
-            result.Text = string.Format("ECG length = {0}", ecg.Length);
+            result.Text = string.Format("ECG length = {0}", ecg);
+
+            var connectionListener = new ConnectionListener();
+            Store = new HealthDataStore(this, connectionListener);
+            connectionListener.Store = Store; // This is the important line
+            Store.ConnectService();
+        }
+    }
+
+    public class ConnectionListener : Java.Lang.Object, IDisposable, IJavaPeerable, HealthDataStore.IConnectionListener
+    {
+        internal HealthDataStore Store { get;  set; }
+
+        public void OnConnected()
+        {
+            //Log(APP_TAG, "Health data service is connected.");
+            HealthPermissionManager pmsManager = new HealthPermissionManager(Store);
+            var ecgReporter = new ECGReporter(Store);
+            ecgReporter.Start();
+
+            try
+            {
+                // Check whether the permissions that this application needs are acquired
+                // Request the permission for reading step counts if it is not acquired
+
+                // Get the current step count and display it if data permission is required
+                // ...
+            }
+            catch (Exception e)
+            {
+                System.Console.WriteLine(string.Format("Exception Cought {0}\n Permission setting fails.", e.Message));
+            }
+        }
+
+        public void OnConnectionFailed(HealthConnectionErrorResult p0)
+        {
+            // Health data service is not available.
+        }
+        public void OnDisconnected()
+        {
+            Store.DisconnectService();
         }
     }
 }
